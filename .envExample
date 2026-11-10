@@ -1,1 +1,2 @@
 PORT=5000
+DATABASE_URL=mongodb+srv://zihadh868_db_user:XS3K46nS4WMq90KV@cluster0.arsczqe.mongodb.net/

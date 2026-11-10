@@ -8,8 +8,6 @@ const userSchema = new Schema({
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   interests: [String],
 }, { timestamps: true });
-
-userSchema.index({ email: 1 }, { unique: true });   
 userSchema.index({ interests: 1 });        
 
 export const User = model("Users", userSchema);
