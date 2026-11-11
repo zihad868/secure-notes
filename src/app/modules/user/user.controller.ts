@@ -48,15 +48,15 @@ const getUserWithPosts = async (req: Request, res: Response, next: NextFunction)
     if (invalidId(id)) { res.status(400).json({ success: false, message: "Invalid user id." }); return; }
     const { page, limit, skip } = getPagination(req);
     const data = await UserService.getUserWithPosts(id, skip, limit);
-    res.json({ success: true, data, meta: { page, limit } });
+    res.json({ success: true, data, meta: getPaginationMeta(page, limit, data.total) });
   } catch (error) { next(error); }
 };
 
 const groupUsersByInterest = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { page, limit, skip } = getPagination(req);
-    const data = await UserService.groupUsersByInterest(skip, limit);
-    res.json({ success: true, data, meta: { page, limit } });
+    const result = await UserService.groupUsersByInterest(skip, limit);
+    res.json({ success: true, data: result.groups, meta: getPaginationMeta(page, limit, result.total) });
   } catch (error) { next(error); }
 };
 
