@@ -1,19 +1,21 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import config from "../../../config";
 import { User } from "../../schema/user.models";
-import { IRegisterPayload } from "./auth.interface";
+import { IRegisterPayload, ILoginPayload, IJwtPayload } from "./auth.interface";
 
 const SALT_ROUNDS = 12;
 
 const register = async (payload: IRegisterPayload) => {
   const { name, email, password, interests } = payload;
 
-  // Check if the email is already exist or not
+  // Check if the email already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new Error("An account with this email already exists.");
+    throw new Error("You are already exist");
   }
 
-  //  Hash the password for security
+  // Hash the password
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   // Create the user
@@ -25,8 +27,67 @@ const register = async (payload: IRegisterPayload) => {
     role: "user",
   });
 
-  return newUser;
+  const userObj = newUser.toObject();
+
+
+  return {
+    name: userObj.name,
+    email: userObj.email,
+    role: userObj.role,
+    interests: userObj.interests,
+  };
 };
 
-export const AuthService = { register };
+const login = async (payload: ILoginPayload) => {
+  const { email, password } = payload;
 
+  // Check if the user exists and include password
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user || !user.password) {
+    throw new Error("Invalid email or password.");
+  }
+
+  // Verify password with bcrypt
+  const isPasswordMatch = await bcrypt.compare(password, user.password as string);
+  if (!isPasswordMatch) {
+    throw new Error("Invalid email or password.");
+  }
+
+  // Generate JWT access token
+  const jwtPayload: IJwtPayload = {
+    id: user._id.toString(),
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = jwt.sign(jwtPayload, config.jwt_secret as string, {
+    expiresIn: config.jwt_expires_in,
+  } as jwt.SignOptions);
+
+ 
+  return {
+    accessToken,
+  };
+};
+
+const getProfile = async (email: string) => {
+  const user = await User.findOne({email});
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  return {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        interests: user.interests,
+  };
+};
+
+export const AuthService = {
+  register,
+  login,
+  getProfile,
+};

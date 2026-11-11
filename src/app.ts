@@ -24,8 +24,14 @@ app.use("/api/v1", router);
 
 // ── Global Error Handler ─────────────────────────────────────
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  const statusCode =
-    err.message.includes("already exists") ? 409 : 500;
+  let statusCode = 500;
+  if (err.message.includes("already exists")) {
+    statusCode = 409;
+  } else if (err.message.includes("Invalid email or password") || err.message.includes("Unauthorized")) {
+    statusCode = 401;
+  } else if (err.message.includes("not found")) {
+    statusCode = 404;
+  }
 
   res.status(statusCode).json({
     success: false,
