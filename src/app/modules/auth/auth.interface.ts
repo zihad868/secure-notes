@@ -10,8 +10,15 @@ export interface ILoginPayload {
   password: string;
 }
 
+import { UserRole } from "../../../schema/user.models";
+
 export interface IJwtPayload {
   id: string;
   email: string;
-  role: string;
+  role: UserRole;
+}
+
+export interface IRefreshTokenPayload {
+  id: string;
+  tokenType: "refresh";
 }

@@ -14,10 +14,10 @@ router.get("/", PostController.getPublicPosts);
 router.get("/my-posts", auth(), PostController.getMyPosts);
 
 // Get admin posts (admin only)
-router.get("/admin/all-posts", auth("admin"), PostController.getAdminPosts);
+router.get("/admin/all-posts", auth("ADMIN"), PostController.getAdminPosts);
 
 // Admin delete post (admin only - can delete any user's post)
-router.delete("/admin/:id", auth("admin"), PostController.adminDeletePost);
+router.delete("/admin/:id", auth("ADMIN"), PostController.adminDeletePost);
 
 // Get single post by ID (public)
 router.get("/:id", PostController.getSinglePost);

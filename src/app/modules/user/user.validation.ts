@@ -5,7 +5,7 @@ export const createUserSchema = z.object({
     name: z.string().trim().optional(),
     email: z.string().email().toLowerCase(),
     password: z.string().min(8),
-    role: z.enum(["user", "admin"]).optional(),
+    role: z.enum(["USER", "ADMIN"]).optional(),
     interests: z.array(z.string().trim().min(1)).optional(),
   }),
 });
@@ -15,7 +15,7 @@ export const updateUserSchema = z.object({
     name: z.string().trim().optional(),
     email: z.string().email().toLowerCase().optional(),
     password: z.string().min(8).optional(),
-    role: z.enum(["user", "admin"]).optional(),
+    role: z.enum(["USER", "ADMIN"]).optional(),
     interests: z.array(z.string().trim().min(1)).optional(),
   }).refine((body) => Object.keys(body).length > 0, {
     message: "At least one field is required",

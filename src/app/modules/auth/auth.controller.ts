@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service";
-import { registerSchema, loginSchema } from "./auth.validation";
+import { registerSchema, loginSchema, refreshTokenSchema } from "./auth.validation";
 
 const register = async (
   req: Request,
@@ -85,8 +85,23 @@ const getProfile = async (
   }
 };
 
+const refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const parsed = refreshTokenSchema.safeParse({ body: req.body });
+    if (!parsed.success) {
+      res.status(400).json({ success: false, message: "Validation failed", errors: parsed.error.flatten().fieldErrors });
+      return;
+    }
+    const data = await AuthService.refreshAccessToken(parsed.data.body.refreshToken);
+    res.status(200).json({ success: true, message: "Access token refreshed successfully.", data });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const AuthController = {
   register,
   login,
+  refresh,
   getProfile,
 };

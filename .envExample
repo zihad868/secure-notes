@@ -2,4 +2,6 @@ PORT=5000
 DATABASE_URL=mongodb+srv://zihadh868_db_user:XS3K46nS4WMq90KV@cluster0.arsczqe.mongodb.net/secure-notes?retryWrites=true&w=majority
 JWT_SECRET=GGe565$55gfgfgf&%$SFgdWW243GVNt2*y$3J
 JWT_EXPIRES_IN=7d
+JWT_REFRESH_SECRET=replace-with-a-different-long-random-secret
+JWT_REFRESH_EXPIRES_IN=30d
 

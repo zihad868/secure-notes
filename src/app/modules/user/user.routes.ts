@@ -4,7 +4,7 @@ import { auth } from "../../middlewares/auth";
 
 const router = Router();
 
-router.use(auth("admin"));
+router.use(auth("ADMIN"));
 router.get("/grouped-by-interests", UserController.groupUsersByInterest);
 router.get("/:id/posts", UserController.getUserWithPosts);
 router.get("/", UserController.getAllUsers);

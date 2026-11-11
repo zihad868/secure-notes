@@ -27,7 +27,11 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   let statusCode = 500;
   if (err.message.includes("already exists") || err.name === "MongoServerError" && (err as Error & { code?: number }).code === 11000) {
     statusCode = 409;
-  } else if (err.message.includes("Invalid email or password") || err.message.includes("Unauthorized")) {
+  } else if (
+    err.message.includes("Invalid email or password") ||
+    err.message.includes("Unauthorized") ||
+    err.message.includes("refresh token")
+  ) {
     statusCode = 401;
   } else if (err.message.includes("Forbidden") || err.message.includes("not authorized")) {
     statusCode = 403;

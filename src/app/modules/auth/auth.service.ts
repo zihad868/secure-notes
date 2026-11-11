@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../../../config";
-import { User } from "../../../schema/user.models";
-import { IRegisterPayload, ILoginPayload, IJwtPayload } from "./auth.interface";
+import { User, UserRole } from "../../../schema/user.models";
+import { IRegisterPayload, ILoginPayload, IJwtPayload, IRefreshTokenPayload } from "./auth.interface";
 
 const SALT_ROUNDS = 12;
 
@@ -24,7 +24,7 @@ const register = async (payload: IRegisterPayload) => {
     email,
     password: hashedPassword,
     interests: interests ?? [],
-    role: "user",
+    role: "USER",
   });
 
   const userObj = newUser.toObject();
@@ -54,7 +54,7 @@ const login = async (payload: ILoginPayload) => {
     throw new Error("Invalid email or password.");
   }
 
-  // Generate JWT access token
+  // Access tokens are short-lived; refresh tokens are used to issue new ones.
   const jwtPayload: IJwtPayload = {
     id: user._id.toString(),
     email: user.email,
@@ -65,10 +65,45 @@ const login = async (payload: ILoginPayload) => {
     expiresIn: config.jwt_expires_in,
   } as jwt.SignOptions);
 
+  const refreshToken = jwt.sign(
+    { id: user._id.toString(), tokenType: "refresh" } satisfies IRefreshTokenPayload,
+    config.jwt_refresh_secret as string,
+    { expiresIn: config.jwt_refresh_expires_in } as jwt.SignOptions,
+  );
+
  
   return {
     accessToken,
+    refreshToken,
   };
+};
+
+const refreshAccessToken = async (refreshToken: string) => {
+  let decoded: IRefreshTokenPayload & jwt.JwtPayload;
+  try {
+    decoded = jwt.verify(refreshToken, config.jwt_refresh_secret as string) as IRefreshTokenPayload & jwt.JwtPayload;
+  } catch {
+    throw new Error("Invalid or expired refresh token.");
+  }
+
+  if (decoded.tokenType !== "refresh" || !decoded.id) {
+    throw new Error("Invalid refresh token.");
+  }
+
+  const user = await User.findById(decoded.id);
+  if (!user) throw new Error("User not found.");
+
+  const jwtPayload: IJwtPayload = {
+    id: user._id.toString(),
+    email: user.email,
+    role: user.role as UserRole,
+  };
+
+  const accessToken = jwt.sign(jwtPayload, config.jwt_secret as string, {
+    expiresIn: config.jwt_expires_in,
+  } as jwt.SignOptions);
+
+  return { accessToken };
 };
 
 const getProfile = async (email: string) => {
@@ -89,5 +124,6 @@ const getProfile = async (email: string) => {
 export const AuthService = {
   register,
   login,
+  refreshAccessToken,
   getProfile,
 };
