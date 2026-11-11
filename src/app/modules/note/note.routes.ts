@@ -10,6 +10,8 @@ router.post("/", NoteController.createNote);
 
 router.get("/", NoteController.getUserNotes);
 
+router.get("/admin/all", auth("admin"), NoteController.getAllNotes);
+
 router.get("/:id", NoteController.getSingleNote);
 
 

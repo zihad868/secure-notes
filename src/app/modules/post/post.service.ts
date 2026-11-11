@@ -15,30 +15,32 @@ const createPost = async (userId: string, payload: ICreatePostPayload) => {
 };
 
 // Get public posts 
-const getPublicPosts = async () => {
-  const posts = await Posts.find({ isPublic: true, isDeleted: false })
+const getPublicPosts = async (skip: number, limit: number) => {
+  const filter = { isPublic: true, isDeleted: false };
+  const [posts, total] = await Promise.all([Posts.find(filter)
     .populate("owner", "name email")
-    .sort({ _id: -1 });
+    .sort({ _id: -1 }).skip(skip).limit(limit), Posts.countDocuments(filter)]);
 
-  return posts;
+  return { posts, total };
 };
 
 //  Get my posts 
-const getMyPosts = async (userId: string) => {
-  const posts = await Posts.find({ owner: userId, isDeleted: false })
+const getMyPosts = async (userId: string, skip: number, limit: number) => {
+  const filter = { owner: userId, isDeleted: false };
+  const [posts, total] = await Promise.all([Posts.find(filter)
     .populate("owner", "name email")
-    .sort({ _id: -1 });
+    .sort({ _id: -1 }).skip(skip).limit(limit), Posts.countDocuments(filter)]);
 
-  return posts;
+  return { posts, total };
 };
 
 //  Get admin posts 
-const getAdminPosts = async () => {
-  const posts = await Posts.find()
+const getAdminPosts = async (skip: number, limit: number) => {
+  const [posts, total] = await Promise.all([Posts.find({ isDeleted: false })
     .populate("owner", "name email role")
-    .sort({ _id: -1 });
+    .sort({ _id: -1 }).skip(skip).limit(limit), Posts.countDocuments({ isDeleted: false })]);
 
-  return posts;
+  return { posts, total };
 };
 
 // Get single post by ID

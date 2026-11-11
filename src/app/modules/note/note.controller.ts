@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { NoteService } from "./note.service";
 import { createNoteSchema, updateNoteSchema } from "./note.validation";
+import { getPagination, getPaginationMeta } from "../../utils/pagination";
+
 
 const createNote = async (
   req: Request,
@@ -54,17 +56,26 @@ const getUserNotes = async (
       return;
     }
 
-    const notes = await NoteService.getUserNotes(userId);
+    const { page, limit, skip } = getPagination(req);
+    const result = await NoteService.getNotes({ owner: userId, isDeleted: false }, skip, limit);
 
     res.status(200).json({
       success: true,
       message: "Notes fetched successfully.",
-      total: notes.length,
-      data: notes,
+      data: result.notes,
+      meta: getPaginationMeta(page, limit, result.total),
     });
   } catch (error) {
     next(error);
   }
+};
+
+const getAllNotes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { page, limit, skip } = getPagination(req);
+    const result = await NoteService.getNotes({ isDeleted: false }, skip, limit);
+    res.status(200).json({ success: true, data: result.notes, meta: getPaginationMeta(page, limit, result.total) });
+  } catch (error) { next(error); }
 };
 
 const getSingleNote = async (
@@ -174,5 +185,6 @@ export const NoteController = {
   getSingleNote,
   updateNote,
   deleteNote,
+  getAllNotes,
 };
 

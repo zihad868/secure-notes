@@ -1,71 +1,32 @@
 import { Note } from "../../../schema/note.models";
 import { INotePayload, IUpdateNotePayload } from "./note.interface";
 
-const createNote = async (userId: string, payload: INotePayload) => {
-  const newNote = await Note.create({
-    title: payload.title,
-    content: payload.content ?? "",
-    owner: userId,
-  });
+const createNote = async (userId: string, payload: INotePayload) => Note.create({ ...payload, owner: userId });
 
-  return newNote;
-};
-
-const getUserNotes = async (userId: string) => {
-
-  const notes = await Note.find({ owner: userId, isDeleted: false }).sort({ _id: -1 });
-  
-  return notes;
+const getNotes = async (filter: Record<string, unknown>, skip: number, limit: number) => {
+  const [notes, total] = await Promise.all([
+    Note.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).lean(),
+    Note.countDocuments(filter),
+  ]);
+  return { notes, total };
 };
 
 const getSingleNote = async (userId: string, noteId: string) => {
-  const note = await Note.findOne({ _id: noteId, owner: userId, isDeleted: false });
-  
-  if (!note) {
-    throw new Error("Note not found.");
-  }
-  
+  const note = await Note.findOne({ _id: noteId, owner: userId, isDeleted: false }).lean();
+  if (!note) throw new Error("Note not found.");
   return note;
 };
 
-const updateNote = async (
-  userId: string,
-  noteId: string,
-  payload: IUpdateNotePayload
-) => {
-  const updatedNote = await Note.findOneAndUpdate(
-    { _id: noteId, owner: userId, isDeleted: false },
-    { $set: payload },
-    { returnDocument: "after", runValidators: true }
-  );
-
-  if (!updatedNote) {
-    throw new Error("Note not found or you are not authorized to update it.");
-  }
-
-  return updatedNote;
+const updateNote = async (userId: string, noteId: string, payload: IUpdateNotePayload) => {
+  const note = await Note.findOneAndUpdate({ _id: noteId, owner: userId, isDeleted: false }, { $set: payload }, { new: true, runValidators: true }).lean();
+  if (!note) throw new Error("Note not found or you are not authorized to update it.");
+  return note;
 };
 
 const deleteNote = async (userId: string, noteId: string) => {
-
-  const deletedNote = await Note.findOneAndUpdate(
-    { _id: noteId, owner: userId, isDeleted: false },
-    { isDeleted: true },
-    { returnDocument: "after" }
-  );
-
-  if (!deletedNote) {
-    throw new Error("Note not found or already deleted.");
-  }
-
-  return deletedNote;
+  const note = await Note.findOneAndUpdate({ _id: noteId, owner: userId, isDeleted: false }, { $set: { isDeleted: true } }, { new: true }).lean();
+  if (!note) throw new Error("Note not found or already deleted.");
+  return note;
 };
 
-export const NoteService = {
-  createNote,
-  getUserNotes,
-  getSingleNote,
-  updateNote,
-  deleteNote,
-};
-
+export const NoteService = { createNote, getNotes, getSingleNote, updateNote, deleteNote };

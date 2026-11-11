@@ -11,6 +11,6 @@ const postSchema = new Schema(
   { timestamps: true }
 );
 
-postSchema.index({ owner: 1, _id: -1 });
+postSchema.index({ owner: 1, isDeleted: 1, _id: -1 });
 
 export const Posts = model("posts", postSchema);

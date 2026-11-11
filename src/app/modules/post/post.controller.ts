@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { PostService } from "./post.service";
 import { createPostSchema, updatePostSchema } from "./post.validation";
+import { getPagination, getPaginationMeta } from "../../utils/pagination";
 
 // Create post
 const createPost = async (
@@ -48,13 +49,14 @@ const getPublicPosts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const posts = await PostService.getPublicPosts();
+    const { page, limit, skip } = getPagination(req);
+    const result = await PostService.getPublicPosts(skip, limit);
 
     res.status(200).json({
       success: true,
       message: "Public posts fetched successfully.",
-      total: posts.length,
-      data: posts,
+      data: result.posts,
+      meta: getPaginationMeta(page, limit, result.total),
     });
   } catch (error) {
     next(error);
@@ -77,13 +79,14 @@ const getMyPosts = async (
       return;
     }
 
-    const posts = await PostService.getMyPosts(userId);
+    const { page, limit, skip } = getPagination(req);
+    const result = await PostService.getMyPosts(userId, skip, limit);
 
     res.status(200).json({
       success: true,
       message: "My posts fetched successfully.",
-      total: posts.length,
-      data: posts,
+      data: result.posts,
+      meta: getPaginationMeta(page, limit, result.total),
     });
   } catch (error) {
     next(error);
@@ -97,13 +100,14 @@ const getAdminPosts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const posts = await PostService.getAdminPosts();
+    const { page, limit, skip } = getPagination(req);
+    const result = await PostService.getAdminPosts(skip, limit);
 
     res.status(200).json({
       success: true,
       message: "Admin: all posts fetched successfully.",
-      total: posts.length,
-      data: posts,
+      data: result.posts,
+      meta: getPaginationMeta(page, limit, result.total),
     });
   } catch (error) {
     next(error);

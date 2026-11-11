@@ -4,8 +4,13 @@ import { auth } from "../../middlewares/auth";
 
 const router = Router();
 
-// GET Get all users for admin
-router.get("/", auth("admin"), UserController.getAllUsers);
+router.use(auth("admin"));
+router.get("/grouped-by-interests", UserController.groupUsersByInterest);
+router.get("/:id/posts", UserController.getUserWithPosts);
+router.get("/", UserController.getAllUsers);
+router.post("/", UserController.createUser);
+router.patch("/:id", UserController.updateUser);
+router.delete("/:id", UserController.deleteUser);
     
 export default router;
 
