@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../../../config";
-import { User } from "../../schema/user.models";
+import { User } from "../../../schema/user.models";
 import { IRegisterPayload, ILoginPayload, IJwtPayload } from "./auth.interface";
 
 const SALT_ROUNDS = 12;
