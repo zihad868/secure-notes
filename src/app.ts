@@ -5,10 +5,23 @@ import router from "./app/routes";
 
 const app = express();
 
+
+
+export const corsOptions = {
+  origin: [
+    "http://76.13.130.194:3000",
+    "http://localhost:3000",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+
 // ── Middleware ────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(helmet());
 
 // ── Routes ───────────────────────────────────────────────────
