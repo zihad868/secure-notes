@@ -62,8 +62,8 @@ const getUserNotes = async (
     res.status(200).json({
       success: true,
       message: "Notes fetched successfully.",
-      data: result.notes,
       meta: getPaginationMeta(page, limit, result.total),
+      data: result.notes,
     });
   } catch (error) {
     next(error);
@@ -74,7 +74,12 @@ const getAllNotes = async (req: Request, res: Response, next: NextFunction): Pro
   try {
     const { page, limit, skip } = getPagination(req);
     const result = await NoteService.getNotes({ isDeleted: false }, skip, limit);
-    res.status(200).json({ success: true, data: result.notes, meta: getPaginationMeta(page, limit, result.total) });
+    res.status(200).json({
+      success: true,
+      message: "All notes fetched successfully.",
+      meta: getPaginationMeta(page, limit, result.total),
+      data: result.notes,
+    });
   } catch (error) { next(error); }
 };
 

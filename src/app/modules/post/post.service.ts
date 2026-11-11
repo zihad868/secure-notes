@@ -21,7 +21,7 @@ const getPublicPosts = async (skip: number, limit: number) => {
     .populate("owner", "name email")
     .sort({ _id: -1 }).skip(skip).limit(limit), Posts.countDocuments(filter)]);
 
-  return { posts, total };
+  return { total, posts };
 };
 
 //  Get my posts 
@@ -40,7 +40,7 @@ const getAdminPosts = async (skip: number, limit: number) => {
     .populate("owner", "name email role")
     .sort({ _id: -1 }).skip(skip).limit(limit), Posts.countDocuments({ isDeleted: false })]);
 
-  return { posts, total };
+  return { total, posts,  };
 };
 
 // Get single post by ID

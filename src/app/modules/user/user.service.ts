@@ -14,7 +14,7 @@ const getAllUsers = async (skip: number, limit: number) => {
     User.find().sort({ createdAt: -1, _id: -1 }).skip(skip).limit(limit).lean(),
     User.countDocuments(),
   ]);
-  return { users, total };
+  return { total, users };
 };
 
 const createUser = async (payload: ICreateUserPayload) => {
@@ -36,7 +36,7 @@ const deleteUser = async (userId: string) => {
   return withoutPassword(user as Record<string, unknown>);
 };
 
-// One aggregate call: users are matched, then posts are joined in the same pipeline.
+
 const getUserWithPosts = async (userId: string, skip: number, limit: number) => {
   const [result] = await User.aggregate([
     { $match: { _id: new Types.ObjectId(userId) } },
@@ -50,7 +50,7 @@ const getUserWithPosts = async (userId: string, skip: number, limit: number) => 
   return result;
 };
 
-// One aggregate call: unwind interests and group users by each interest.
+
 const groupUsersByInterest = async (skip: number, limit: number) => User.aggregate([
   { $match: { interests: { $exists: true, $ne: [] } } },
   { $unwind: "$interests" },

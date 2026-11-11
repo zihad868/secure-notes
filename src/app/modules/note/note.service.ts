@@ -8,7 +8,7 @@ const getNotes = async (filter: Record<string, unknown>, skip: number, limit: nu
     Note.find(filter).sort({ _id: -1 }).skip(skip).limit(limit).lean(),
     Note.countDocuments(filter),
   ]);
-  return { notes, total };
+  return {  total, notes };
 };
 
 const getSingleNote = async (userId: string, noteId: string) => {
@@ -29,4 +29,10 @@ const deleteNote = async (userId: string, noteId: string) => {
   return note;
 };
 
-export const NoteService = { createNote, getNotes, getSingleNote, updateNote, deleteNote };
+export const NoteService = { 
+  createNote, 
+  getNotes, 
+  getSingleNote, 
+  updateNote, 
+  deleteNote 
+};

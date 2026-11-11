@@ -9,7 +9,9 @@ const invalidId = (id: string) => !Types.ObjectId.isValid(id);
 const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { page, limit, skip } = getPagination(req);
+
     const result = await UserService.getAllUsers(skip, limit);
+
     res.json({ success: true, data: result.users, meta: getPaginationMeta(page, limit, result.total) });
   } catch (error) { next(error); }
 };
@@ -58,4 +60,11 @@ const groupUsersByInterest = async (req: Request, res: Response, next: NextFunct
   } catch (error) { next(error); }
 };
 
-export const UserController = { getAllUsers, createUser, updateUser, deleteUser, getUserWithPosts, groupUsersByInterest };
+export const UserController = { 
+getAllUsers, 
+createUser, 
+updateUser, 
+deleteUser, 
+getUserWithPosts, 
+groupUsersByInterest 
+};
