@@ -74,6 +74,24 @@ const updatePost = async (
   return updatedPost;
 };
 
+// Admin update post (admin can update any user's post)
+const adminUpdatePost = async (
+  postId: string,
+  payload: IUpdatePostPayload
+) => {
+  const updatedPost = await Posts.findOneAndUpdate(
+    { _id: postId, isDeleted: false },
+    { $set: payload },
+    { returnDocument: "after", runValidators: true }
+  );
+
+  if (!updatedPost) {
+    throw new Error("Post not found or already deleted.");
+  }
+
+  return updatedPost;
+};
+
 // Delete post (user soft-deletes their own post)
 const deleteMyPost = async (userId: string, postId: string) => {
   const deletedPost = await Posts.findOneAndUpdate(
@@ -111,6 +129,7 @@ export const PostService = {
   getAdminPosts,
   getSinglePost,
   updatePost,
+  adminUpdatePost,
   deleteMyPost,
   adminDeletePost,
 };

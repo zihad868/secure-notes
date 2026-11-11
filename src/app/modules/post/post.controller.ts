@@ -178,6 +178,40 @@ const updatePost = async (
   }
 };
 
+// Admin update post (admin can update any post)
+const adminUpdatePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const parsed = updatePostSchema.safeParse({ body: req.body });
+
+    if (!parsed.success) {
+      res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: parsed.error.flatten().fieldErrors,
+      });
+      return;
+    }
+
+    const updatedPost = await PostService.adminUpdatePost(
+      id as string,
+      parsed.data.body
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Admin: Post updated successfully.",
+      data: updatedPost,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 //  Delete my post (user soft-deletes their own post)
 const deleteMyPost = async (
   req: Request,
@@ -236,6 +270,7 @@ export const PostController = {
   getAdminPosts,
   getSinglePost,
   updatePost,
+  adminUpdatePost,
   deleteMyPost,
   adminDeletePost,
 };

@@ -4,7 +4,7 @@ import { auth } from "../../middlewares/auth";
 
 const router = Router();
 
-//  Create post 
+//  Create post  
 router.post("/", auth(), PostController.createPost);
 
 // Get public posts (public endpoint - no auth required)
@@ -18,6 +18,9 @@ router.get("/admin/all-posts", auth("ADMIN"), PostController.getAdminPosts);
 
 // Admin delete post (admin only - can delete any user's post)
 router.delete("/admin/:id", auth("ADMIN"), PostController.adminDeletePost);
+
+// Admin update post (admin only - can update any user's post)
+router.patch("/admin/:id", auth("ADMIN"), PostController.adminUpdatePost);
 
 // Get single post by ID (public)
 router.get("/:id", PostController.getSinglePost);
