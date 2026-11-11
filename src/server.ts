@@ -2,6 +2,7 @@ import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
 import config from "./config";
+import { initiateSuperAdmin } from "./app/db/db";
 
 let server: Server;
 
@@ -13,6 +14,8 @@ async function main() {
 
     await mongoose.connect(config.database_url);
     console.log("MongoDB connected successfully");
+
+    await initiateSuperAdmin();
 
     server = app.listen(config.port, () => {
       console.log(`Secure notes server is running on port ${config.port}`);
