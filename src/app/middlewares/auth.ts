@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-export const auth = () => {
+export const auth = (...requiredRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authHeader = req.headers.authorization;
@@ -43,6 +43,15 @@ export const auth = () => {
         email: decoded.email,
         role: decoded.role,
       };
+
+      // Check role authorization if roles are specified
+      if (requiredRoles.length > 0 && !requiredRoles.includes(decoded.role)) {
+        res.status(403).json({
+          success: false,
+          message: "Forbidden! You do not have permission to access this resource.",
+        });
+        return;
+      }
 
       next();
     } catch (error) {

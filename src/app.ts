@@ -29,6 +29,8 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     statusCode = 409;
   } else if (err.message.includes("Invalid email or password") || err.message.includes("Unauthorized")) {
     statusCode = 401;
+  } else if (err.message.includes("Forbidden") || err.message.includes("not authorized")) {
+    statusCode = 403;
   } else if (err.message.includes("not found")) {
     statusCode = 404;
   }

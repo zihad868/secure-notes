@@ -4,7 +4,7 @@ const postSchema = new Schema(
   {
     title: { type: String, required: true, trim: true },
     content: { type: String, default: "" },
-    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    owner: { type: Schema.Types.ObjectId, ref: "Users", required: true },
     isDeleted: { type: Boolean, default: false },
     isPublic: { type: Boolean, default: true },
   },
